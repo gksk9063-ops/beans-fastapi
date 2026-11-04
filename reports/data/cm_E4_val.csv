@@ -1,0 +1,4 @@
+true\pred,angular_leaf_spot,bean_rust,healthy
+angular_leaf_spot,44,0,0
+bean_rust,0,44,1
+healthy,0,0,44
