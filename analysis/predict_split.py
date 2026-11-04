@@ -3,6 +3,7 @@
 예:
   python -m analysis.predict_split --model artifacts/beans_resnet18 --split val --tag E0
   python -m analysis.predict_split --model artifacts/beans_resnet18_full_e8 --split val --tag E4
+  python -m analysis.predict_split --model artifacts/beans_resnet18_full_e8 --split train --tag E4   # 규칙 기준값용
   # Test는 최종 모델 확정 후 1번만:
   python -m analysis.predict_split --model artifacts/beans_resnet18_full_e8 --split test --tag E4 --confirm-test
 """
@@ -94,7 +95,7 @@ def run(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
-    parser.add_argument("--split", choices=["val", "test"], default="val")
+    parser.add_argument("--split", choices=["train", "val", "test"], default="val")
     parser.add_argument("--tag", required=True, help="실험 ID, 예: E0, E4")
     parser.add_argument("--data", default="dataset")
     parser.add_argument("--out", default="reports/data")

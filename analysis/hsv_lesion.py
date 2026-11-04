@@ -1,4 +1,4 @@
-"""OpenCV(HSV + GrabCut + Contour)로 잎 영역 안의 황색·갈색 반점 후보 면적비를 계산한다.
+"""OpenCV(HSV + GrabCut + Contour)로 잎 영역 안의 반점 후보(초록이 아닌 픽셀) 면적비를 계산한다.
 
 CNN 예측은 바꾸지 않는다. 이미지별 수치를 CSV로 남기고, 지정한 이미지는 마스크 그림을 저장한다.
 
@@ -13,10 +13,12 @@ import cv2
 import numpy as np
 
 # 색 범위 (OpenCV HSV: H 0~179, S·V 0~255). Train 사진 3장을 보고 정한 값.
-GREEN_LO, GREEN_HI = (30, 40, 40), (90, 255, 255)      # 잎 후보
-LESION_LO, LESION_HI = (15, 50, 90), (32, 255, 255)    # 황색·갈색 반점 후보
+GREEN_LO, GREEN_HI = (30, 40, 40), (90, 255, 255)      # 잎 후보 (GrabCut 시작점)
+# v2: 반점 = 잎 안에서 '초록이 아닌' 픽셀. v1(황색만)은 갈색·암갈색(ALS) 반점을 놓쳤음
+LEAF_GREEN_LO, LEAF_GREEN_HI = (27, 30, 0), (90, 255, 255)   # 정상 잎 색
+VALID_LO, VALID_HI = (0, 0, 30), (179, 255, 220)             # 너무 어두운 그림자·반사광 제외
 # 반점 모양 조건: 너무 작거나 크지 않고, 길쭉하지 않은(잎맥이 아닌) 덩어리만 남김
-SPOT_MIN_AREA, SPOT_MAX_AREA = 4, 600
+SPOT_MIN_AREA, SPOT_MAX_AREA = 4, 1500
 SPOT_MAX_ASPECT = 2.5
 SPOT_MIN_EXTENT = 0.35
 
@@ -69,7 +71,10 @@ def analyze(path: str):
     bgr = cv2.imread(path)
     hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
     leaf = leaf_mask(bgr, hsv)
-    lesion = cv2.bitwise_and(cv2.inRange(hsv, LESION_LO, LESION_HI), leaf)
+    not_green = cv2.bitwise_not(cv2.inRange(hsv, LEAF_GREEN_LO, LEAF_GREEN_HI))
+    lesion = cv2.bitwise_and(not_green, cv2.inRange(hsv, VALID_LO, VALID_HI))
+    lesion = cv2.morphologyEx(lesion, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))  # 1~2픽셀 잡음 제거
+    lesion = cv2.bitwise_and(lesion, leaf)
     spots = spot_mask(lesion)
     leaf_px = int((leaf > 0).sum())
     spot_px = int((spots > 0).sum())
