@@ -7,7 +7,7 @@ artifacts/*
 !artifacts/.gitkeep
 media/jobs/*
 !media/jobs/.gitkeep
-*.db.vscode/
+*.db
 beans_source/
 *.pyc
 .vscode/

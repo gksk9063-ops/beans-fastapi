@@ -1,6 +1,5 @@
 from uuid import uuid4
 from fastapi import APIRouter, File, HTTPException, UploadFile
-from sqlalchemy.exc import SQLAlchemyError
 from .config import MAX_UPLOAD_BYTES, MEDIA_DIR, MODEL_PATH
 from .database import SessionLocal
 from .models import ImageJob

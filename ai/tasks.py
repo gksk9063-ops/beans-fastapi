@@ -1,5 +1,5 @@
 from .celery_app import celery_app
-from .config import MEDIA_DIR, MODEL_PATH
+from .config import MEDIA_DIR
 from .database import SessionLocal
 from .models import ImageJob
 from .cache_service import classify_with_cache

@@ -5,7 +5,6 @@ import os
 import tempfile
 from pathlib import Path
 from io import BytesIO
-from unittest.mock import patch
 
 os.environ["DATABASE_URL"] = "sqlite:///" + str(Path(tempfile.mkdtemp()) / "api_test.db")
 
@@ -72,7 +71,6 @@ def test_broker_failure(monkeypatch, tmp_path):
 
 
 def test_cache_hit_avoids_repeated_inference(monkeypatch):
-    import json
     import ai.cache_service as cache_service
     store = {}
     class FakeRedis:
