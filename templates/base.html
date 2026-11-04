@@ -9,9 +9,15 @@
 <body>
  <main class="wrap">
   <header><h1>ResNet-18 이미지 분류 실습</h1>
-   <nav><a href="/vision/sync/">동기</a> · <a href="/vision/async/">비동기</a> · <a href="/docs">Swagger UI</a></nav>
+   <nav><a href="/vision/sync/">동기</a><a href="/vision/async/">비동기</a><a href="/vision/jobs/">작업 목록</a><a href="/docs">Swagger UI</a></nav>
   </header>
   {% block content %}{% endblock %}
  </main>
+ <script>
+  // 지금 보고 있는 화면의 메뉴를 강조한다
+  document.querySelectorAll('nav a').forEach(a => {
+    if (a.getAttribute('href') === location.pathname) a.setAttribute('aria-current', 'page');
+  });
+ </script>
 </body>
 </html>

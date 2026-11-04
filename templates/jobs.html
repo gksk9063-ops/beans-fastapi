@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}비동기 작업 목록{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='/result.css') }}">
+<section class="panel"><h2>비동기 작업 목록 (PostgreSQL image_jobs)</h2>
+<div class="toolbar">
+  <button id="reload">새로고침</button>
+  <label class="toggle"><input type="checkbox" id="auto" checked> 3초마다 자동 갱신</label>
+  <select id="limit"><option>20</option><option>50</option><option>100</option></select>
+  <span id="meta" class="meta"></span>
+</div>
+<div class="table-wrap"><table class="jobs">
+  <thead><tr><th>ID</th><th>상태</th><th>예측</th><th>확신도</th><th>캐시</th><th>추론</th><th>모델</th><th>접수 시각</th></tr></thead>
+  <tbody id="rows"><tr><td colspan="8">불러오는 중...</td></tr></tbody>
+</table></div></section>
+<script src="{{ url_for('static', path='/result.js') }}"></script>
+<script>
+const rowsEl=document.getElementById('rows'),meta=document.getElementById('meta');
+const fmtTime=s=>{if(!s)return '-';const d=new Date(s),p=n=>String(n).padStart(2,'0');return `${p(d.getMonth()+1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;};
+async function load(){
+  try{
+    const res=await fetch(`/api/async/jobs/?limit=${document.getElementById('limit').value}`);
+    const jobs=await res.json();
+    if(!jobs.length){rowsEl.innerHTML='<tr><td colspan="8">아직 작업이 없습니다.</td></tr>';return;}
+    rowsEl.innerHTML=jobs.map(j=>{
+      const review=j.status==='done'&&j.top1_score<REVIEW_SCORE;
+      const label=j.top1_label?(LABEL_KO[j.top1_label]||j.top1_label):(j.error_message?'오류':'-');
+      return `<tr class="${review?'review-row':''}" title="${j.error_message||''}">
+        <td><a href="/api/async/jobs/${j.job_id}/" target="_blank">${j.job_id}</a></td>
+        <td><span class="st st-${j.status}">${j.status}</span></td>
+        <td>${label}${review?' <span class="flag">확인 필요</span>':''}</td>
+        <td class="num">${j.top1_score==null?'-':pct(j.top1_score)}</td>
+        <td>${j.cache_hit==null?'-':`<span class="badge ${j.cache_hit?'hit':'miss'}">${j.cache_hit?'HIT':'MISS'}</span>`}</td>
+        <td class="num">${j.inference_ms==null?'-':j.inference_ms.toFixed(1)+'ms'}</td>
+        <td class="model">${String(j.model_id).split('/').pop()}</td>
+        <td class="time">${fmtTime(j.created_at)}</td></tr>`;}).join('');
+    meta.textContent=`${jobs.length}건 · ${new Date().toLocaleTimeString('ko-KR',{hour12:false})} 기준`;
+  }catch(err){meta.textContent=`불러오기 실패: ${err}`;}
+}
+document.getElementById('reload').onclick=load;
+document.getElementById('limit').onchange=load;
+setInterval(()=>{if(document.getElementById('auto').checked)load();},3000);
+load();
+</script>
+{% endblock %}

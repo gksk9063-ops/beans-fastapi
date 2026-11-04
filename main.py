@@ -6,6 +6,7 @@ from ai.router_sync import router as sync_router
 from ai.router_async import router as async_router
 from ai.router_web import router as web_router
 from ai.database import init_db
+from ai.router_jobs import router as jobs_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,6 +19,7 @@ app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="stat
 app.include_router(web_router)
 app.include_router(sync_router)
 app.include_router(async_router)
+app.include_router(jobs_router)  
 
 @app.get("/health")
 def health():
