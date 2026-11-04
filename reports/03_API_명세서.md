@@ -1,7 +1,9 @@
 # API 명세서
 
 - Base URL: `http://127.0.0.1:8000` · Swagger: `/docs`
-- 서빙 모델: `artifacts/beans_resnet18_full_e8`
+- 서빙 모델: `artifacts/beans_resnet18_aug_e15` (E6)
+
+> 2026-11-04 서빙 모델을 E4(`beans_resnet18_full_e8`)에서 **E6(`beans_resnet18_aug_e15`, 증강 학습)**로 교체했다 (06 B-9). 이 문서의 실제 응답·작업 이력·시간 측정은 **E4 서빙 당시 기록**이다. E4와 E6는 같은 ResNet-18 구조이고 서빙 코드는 바뀌지 않았다.
 
 ## 1. API 목록
 

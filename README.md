@@ -5,18 +5,21 @@
 | 결과 | 값 |
 |---|---|
 | 기준선 Head-only (3ep) | Val 0.7669 |
-| **최종 Full Fine-tuning (8ep, lr 5e-5)** | **Val 0.9925 · Test 0.9688** |
-| 응답 시간 (CPU, 5회 평균) | 동기 MISS 27.8ms · HIT 3.1ms · 비동기 접수 12.3ms |
+| Full Fine-tuning (8ep, lr 5e-5) · E4 | Val 0.9925 · Test 0.9688 |
+| **최종 Full + 데이터 증강 (15ep, lr 5e-5) · E6 (서빙)** | **Val 1.0000 · Test 0.9453 · 확신도 0.9 미만 보류 시 나머지 113/113 정답** |
+| 거리 변화 (Val 사진 60% 크기로 멀리) | E4 0.556 → **E6 0.992** |
+| 응답 시간 (CPU, 5회 평균, E4로 측정 · E6도 같은 ResNet-18) | 동기 MISS 27.8ms · HIT 3.1ms · 비동기 접수 12.3ms |
 
 ## 실행
 
 ```bash
 # 1) 학습 (WSL .venv, 제공 코드 그대로 · 옵션만 변경)
 python -m training.finetune --data dataset --output artifacts/beans_resnet18 --epochs 3 --batch-size 8 --freeze-backbone   # 기준선
-python -m training.finetune --data dataset --output artifacts/beans_resnet18_full_e8 --epochs 8 --batch-size 8 --lr 5e-5   # 최종
+python -m training.finetune --data dataset --output artifacts/beans_resnet18_full_e8 --epochs 8 --batch-size 8 --lr 5e-5   # E4 (증강 없음)
+python -m training.finetune_aug --data dataset --epochs 15 --batch-size 8 --lr 5e-5 --output artifacts/beans_resnet18_aug_e15   # E6 최종 (train 증강)
 
 # 2) .env
-echo "MODEL_PATH=artifacts/beans_resnet18_full_e8" > .env
+echo "MODEL_PATH=artifacts/beans_resnet18_aug_e15" > .env   # 이미 .env가 있으면 MODEL_PATH 줄만 수정
 
 # 3) 서버 (redis · postgres · web · worker)
 docker compose up -d --build
@@ -50,13 +53,18 @@ fastapi_resnet18/
 │   ├── router_async.py    # 비동기 접수·조회 API
 │   ├── router_web.py      # HTML 화면
 │   └── router_jobs.py     # 작업 목록 API·화면 (추가)
-├── training/finetune.py   # Fine-tuning (제공 코드 그대로)
+├── training/
+│   ├── finetune.py        # Fine-tuning (제공 코드 그대로)
+│   ├── finetune_aug.py    # finetune.py를 불러 train에만 증강 (추가)
+│   └── augment.py         # 증강·조건 변형 함수 (추가)
 ├── analysis/              # 성능 분석 (추가)
 │   ├── predict_split.py   #   Val/Test 예측·혼동행렬
 │   ├── hsv_lesion.py      #   OpenCV 반점 면적비
 │   ├── rule_review.py     #   보류 규칙 비교
 │   ├── ensemble_eval.py   #   앙상블·TTA 비교
-│   └── measure_timings.py #   처리 시간 측정
+│   ├── measure_timings.py #   처리 시간 측정
+│   ├── shift_eval.py      #   거리·구도·화질 바꾼 Val로 E4·E6 비교
+│   └── predict_folder.py  #   외부 사진 폴더 E4·E6 비교
 ├── templates/             # base · sync · async · jobs(추가).html
 ├── static/                # style.css · result.js/css(추가)
 ├── tests/test_api.py      # 모의 통합 테스트
@@ -73,8 +81,9 @@ fastapi_resnet18/
 ├── dataset/               # train / val / test (업로드 안 함)
 ├── artifacts/             # 학습 모델 (업로드 안 함)
 │   ├── beans_resnet18/          # 기준선 Head-only
-│   └── beans_resnet18_full_e8/  # 최종 (서빙)
+│   ├── beans_resnet18_full_e8/  # E4 Full (이전 서빙)
+│   └── beans_resnet18_aug_e15/  # E6 Full + 증강 (서빙)
 └── media/jobs/            # 비동기 업로드 원본 (업로드 안 함)
 ```
 
-`.env`, `dataset/`, `artifacts/`, `media/jobs/`는 GitHub에 올리지 않습니다. 자세한 설명은 [reports/08_최종기술보고서.md](reports/08_최종기술보고서.md).
+`.env`, `dataset/`, `artifacts/`, `media/jobs/`, `external_photos/`(인터넷 사진 원본)는 GitHub에 올리지 않습니다. 자세한 설명은 [reports/08_최종기술보고서.md](reports/08_최종기술보고서.md).
