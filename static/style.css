@@ -1,1 +1,36 @@
 *{box-sizing:border-box}body{margin:0;background:#0d1726;color:#edf4ff;font:16px/1.6 system-ui,-apple-system,sans-serif}.wrap{max-width:850px;margin:38px auto;padding:0 20px}header{margin-bottom:26px}nav a{color:#9bc5ff;margin-right:12px}.panel{padding:24px;border:1px solid #364961;border-radius:16px;background:#162338}.panel h2{font-size:21px}input,button{margin:8px 8px 8px 0;padding:10px;border-radius:8px}button{background:#78aafa;color:#0a1521;border:0;cursor:pointer;font-weight:700}button:disabled{opacity:.5}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#07101b;border-radius:10px;padding:16px}.preview{display:block;max-width:300px;max-height:250px;margin:12px 0;object-fit:contain}.preview[hidden]{display:none}
+
+/* ===== 버튼·입력 스타일 (색상 팔레트 유지: #78aafa / #162338 / #364961) ===== */
+header h1{margin:0 0 10px}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav a{margin:0;padding:6px 14px;border-radius:999px;border:1px solid #364961;background:#162338;
+  color:#9bc5ff;text-decoration:none;font-size:14px;font-weight:600;transition:background .15s,border-color .15s}
+nav a:hover{background:#22324a;border-color:#78aafa}
+nav a[aria-current="page"]{background:#78aafa;border-color:#78aafa;color:#0a1521}
+
+/* 파일 선택 */
+input[type=file]{margin:8px 8px 8px 0;padding:6px;border:1px dashed #364961;border-radius:10px;
+  background:#0f1b2d;color:#b9c8dc;font-size:14px;max-width:100%}
+input[type=file]::file-selector-button{margin-right:10px;padding:8px 14px;border:1px solid #364961;border-radius:8px;
+  background:#22324a;color:#edf4ff;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s}
+input[type=file]::file-selector-button:hover{background:#2c4060;border-color:#78aafa}
+
+/* 버튼 */
+button{display:inline-flex;align-items:center;gap:6px;margin:8px 8px 8px 0;padding:10px 20px;border:1px solid transparent;
+  border-radius:10px;background:#78aafa;color:#0a1521;font-weight:700;font-size:15px;cursor:pointer;
+  box-shadow:0 4px 14px rgba(120,170,250,.25);transition:transform .08s,background .15s,box-shadow .15s}
+button:hover{background:#8db8fb;box-shadow:0 6px 18px rgba(120,170,250,.35)}
+button:active{transform:translateY(1px);box-shadow:0 2px 8px rgba(120,170,250,.25)}
+button:focus-visible,input[type=file]:focus-visible,nav a:focus-visible{outline:2px solid #9bc5ff;outline-offset:2px}
+button:disabled{opacity:.5;cursor:wait;box-shadow:none;transform:none}
+/* 보조 버튼: 상태조회 중지 */
+#cancel{background:transparent;color:#9bc5ff;border-color:#364961;box-shadow:none}
+#cancel:hover{background:#22324a;border-color:#78aafa}
+
+/* 원본 JSON 펼치기 */
+details.raw summary{display:inline-block;padding:6px 12px;border-radius:8px;border:1px solid #364961;
+  font-size:14px;list-style:none;transition:background .15s}
+details.raw summary::-webkit-details-marker{display:none}
+details.raw summary::before{content:"▸ ";}
+details.raw[open] summary::before{content:"▾ ";}
+details.raw summary:hover{background:#22324a}

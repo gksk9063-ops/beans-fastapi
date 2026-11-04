@@ -19,3 +19,23 @@
 details.raw{margin-top:12px}details.raw summary{cursor:pointer;color:#8fa6c4}
 @media (max-width:520px){.bar-row{grid-template-columns:90px 1fr 56px}.top-label{font-size:22px}}
  
+/* 작업 목록 */
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+.toolbar button{margin:0}
+.toggle{display:inline-flex;align-items:center;gap:6px;color:#b9c8dc;font-size:14px;cursor:pointer}
+select{padding:8px 10px;border-radius:8px;border:1px solid #364961;background:#0f1b2d;color:#edf4ff}
+.meta{color:#8fa6c4;font-size:13px;margin-left:auto}
+.table-wrap{overflow-x:auto;border:1px solid #364961;border-radius:12px}
+table.jobs{width:100%;border-collapse:collapse;font-size:13.5px;min-width:720px}
+table.jobs th{background:#0f1b2d;color:#8fa6c4;text-align:left;font-weight:600;padding:10px 8px;border-bottom:1px solid #364961}
+table.jobs td{padding:9px 8px;border-bottom:1px solid #22324a;white-space:nowrap}
+table.jobs tr:last-child td{border-bottom:0}
+table.jobs tr:hover td{background:#1b2a42}
+table.jobs a{color:#9bc5ff}
+table.jobs .num{text-align:right;font-variant-numeric:tabular-nums}
+table.jobs .model,table.jobs .time{color:#8fa6c4;font-size:13px}
+tr.review-row td{background:#2a2414}
+.st{font-size:12px;padding:2px 9px;border-radius:999px;font-weight:700}
+.st-queued{background:#22324a;color:#c9d7ea}.st-running{background:#1d3a5c;color:#9bc5ff}
+.st-done{background:#1f4d33;color:#a6f0c3}.st-failed{background:#4d1f1f;color:#ffb4b4}
+.flag{font-size:12px;padding:1px 7px;border-radius:999px;background:#3a2c10;color:#ffd58a;margin-left:4px;white-space:nowrap}
