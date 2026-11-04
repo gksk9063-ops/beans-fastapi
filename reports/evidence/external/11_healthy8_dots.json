@@ -1,0 +1,23 @@
+{
+  "model_id": "artifacts/beans_resnet18_full_e8",
+  "top1": {
+    "label": "angular_leaf_spot",
+    "score": 0.6869323253631592
+  },
+  "all": [
+    {
+      "label": "angular_leaf_spot",
+      "score": 0.6869323253631592
+    },
+    {
+      "label": "healthy",
+      "score": 0.29434239864349365
+    },
+    {
+      "label": "bean_rust",
+      "score": 0.01872527226805687
+    }
+  ],
+  "inference_ms": 24.58,
+  "cache_hit": false
+}
