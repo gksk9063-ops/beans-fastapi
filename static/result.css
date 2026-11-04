@@ -1,0 +1,21 @@
+/* 결과 카드 (style.css 뒤에 불러옴) */
+.result{margin-top:14px}.result[hidden]{display:none}
+.card{background:#0f1b2d;border:1px solid #364961;border-radius:14px;padding:18px}
+.card.review{border-color:#e0a341}.card.error{border-color:#e05b5b;color:#ffb4b4}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.top-label{font-size:26px;font-weight:800}.top-sub{color:#8fa6c4;font-size:14px}
+.top-score{font-size:32px;font-weight:800;color:#9bc5ff}
+.notice{margin:12px 0 0;padding:8px 12px;border-radius:8px;background:#3a2c10;color:#ffd58a;font-weight:700}
+.bars{margin:16px 0 8px}
+.bar-row{display:grid;grid-template-columns:120px 1fr 64px;align-items:center;gap:10px;margin:7px 0;color:#b9c8dc}
+.bar-row.top{color:#edf4ff;font-weight:700}
+.bar-track{height:12px;background:#22324a;border-radius:6px;overflow:hidden}
+.bar-fill{display:block;height:100%;background:#4f6d94;border-radius:6px}
+.bar-row.top .bar-fill{background:#78aafa}
+.bar-val{text-align:right;font-variant-numeric:tabular-nums}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.badge{font-size:13px;padding:3px 10px;border-radius:999px;background:#22324a;color:#c9d7ea}
+.badge.hit{background:#1f4d33;color:#a6f0c3}.badge.miss{background:#4a2f1a;color:#ffc999}
+details.raw{margin-top:12px}details.raw summary{cursor:pointer;color:#8fa6c4}
+@media (max-width:520px){.bar-row{grid-template-columns:90px 1fr 56px}.top-label{font-size:22px}}
+ 
