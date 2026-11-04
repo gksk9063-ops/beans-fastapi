@@ -10,12 +10,12 @@
 | API ID | Method | URL | 요청 형태 | 성공 HTTP | 주요 응답 | 실패 HTTP |
 |---|---|---|---|---:|---|---|
 | API-01 | GET | `/health` | 없음 | 200 | `status` | 서버 미실행 시 연결 실패 |
-| API-02 | POST | `/api/sync/classify/` | `multipart/form-data` / `image` | 200 | `model_id`, `top1`, `all`, `inference_ms`, `cache_hit` | 400, 413 |
+| API-02 | POST | `/api/sync/classify/` | `multipart/form-data` / `image` | 200 | `model_id`, `top1`, `all`, `inference_ms`, `cache_hit`, `leaf_check`(추가) | 400, 413 |
 | API-03 | POST | `/api/async/classify/` | `multipart/form-data` / `image` | 202 | `job_id`, `status`, `check_url` | 400, 413, 503 |
-| API-04 | GET | `/api/async/jobs/{job_id}/` | 정수 `job_id` | 200 | `status`, `top1`, `all`, `inference_ms`, `cache_hit`, `error_message` | 404 |
+| API-04 | GET | `/api/async/jobs/{job_id}/` | 정수 `job_id` | 200 | `status`, `top1`, `all`, `inference_ms`, `cache_hit`, `error_message`, `leaf_check`(추가) | 404 |
 | WEB-01 | GET | `/vision/sync/` | 없음 | 200 | HTML | — |
 | WEB-02 | GET | `/vision/async/` | 없음 | 200 | HTML | — |
-| API-05 (추가) | GET | `/api/async/jobs/?limit=20` | `limit` 1~100 | 200 | 최근 작업 배열 (`job_id`, `status`, `top1_label`, `top1_score`, `cache_hit`, `inference_ms`, `created_at`) | 422 (limit 범위 밖) |
+| API-05 (추가) | GET | `/api/async/jobs/?limit=20` | `limit` 1~100 | 200 | 최근 작업 배열 (`job_id`, `status`, `top1_label`, `top1_score`, `cache_hit`, `inference_ms`, `maybe_not_bean`, `created_at`) | 422 (limit 범위 밖) |
 | WEB-03 (추가) | GET | `/vision/jobs/` | 없음 | 200 | HTML 작업 목록 (3초 자동 갱신) | — |
 | WEB-00 | GET | `/` | 없음 | 307 | `/vision/sync/`로 이동 | — |
 
@@ -85,6 +85,28 @@
 - 응답 필드 `all`은 DB 컬럼 `all_scores`와 이름이 다름 (코드 그대로 유지)
 
 ## 6. 제공 코드 외 추가 기능
+
+### 6-0. `leaf_check` 필드 (콩잎 아님 표시, 06 B-10)
+
+| 필드 | 형식 | 의미 |
+|---|---|---|
+| `leaf_check.distance` | float | 학습한 콩잎 특징 분포까지 Mahalanobis 거리 |
+| `leaf_check.threshold` | float | 기준값 27.65 (Val 콩잎 99%) · 동기 응답에만 |
+| `leaf_check.maybe_not_bean` | bool | 거리 > 기준값이면 true |
+| `leaf_check.ms` | float | 검사 시간 · 동기 응답에만 |
+| (설정 없음) | `null` | `.env`에 `LEAF_STATS_PATH`가 없으면 검사 생략 |
+
+실제 응답 (동기, 고양이 사진):
+```json
+{"model_id":"artifacts/beans_resnet18_aug_e15",
+ "top1":{"label":"bean_rust","score":0.8883199691772461}, "all":[...],
+ "inference_ms":null,"cache_hit":true,
+ "leaf_check":{"distance":62.31,"threshold":27.65,"maybe_not_bean":true,"ms":24.84}}
+```
+- 라벨·점수는 바꾸지 않음. 기존 필드는 그대로라 예전 클라이언트도 동작
+- 비동기 조회(API-04)는 DB에 저장된 `{"distance", "maybe_not_bean"}`만 돌려줌 (E4 시절 작업은 `null`)
+- 이 기능을 위해 `router_async.py`의 `get_job()` 응답에 `leaf_check` 1개 항목을 추가함
+
 
 - `ai/router_jobs.py` (새 파일): 작업 목록 API-05 + 화면 WEB-03. 기존 `router_async.py`는 수정하지 않음
   - 추가 이유: 제공 API-04는 job **1개**만 번호로 조회 → 쌓인 작업 전체를 브라우저에서 확인할 방법이 없었음 (psql·DBeaver만 가능)

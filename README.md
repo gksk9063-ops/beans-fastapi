@@ -8,6 +8,7 @@
 | Full Fine-tuning (8ep, lr 5e-5) · E4 | Val 0.9925 · Test 0.9688 |
 | **최종 Full + 데이터 증강 (15ep, lr 5e-5) · E6 (서빙)** | **Val 1.0000 · Test 0.9453 · 확신도 0.9 미만 보류 시 나머지 113/113 정답** |
 | 거리 변화 (Val 사진 60% 크기로 멀리) | E4 0.556 → **E6 0.992** |
+| 콩잎 아님 표시 (ImageNet 특징 정규분포 거리 > 27.65) | 고양이 62.3 · 토마토 48.7 · 곤충 있는 콩잎 29.1 검출, 실제 콩잎 새 오탐 0장 (외부 사진 14장) |
 | 응답 시간 (CPU, 5회 평균, E4로 측정 · E6도 같은 ResNet-18) | 동기 MISS 27.8ms · HIT 3.1ms · 비동기 접수 12.3ms |
 
 ## 실행
@@ -20,6 +21,10 @@ python -m training.finetune_aug --data dataset --epochs 15 --batch-size 8 --lr 5
 
 # 2) .env
 echo "MODEL_PATH=artifacts/beans_resnet18_aug_e15" > .env   # 이미 .env가 있으면 MODEL_PATH 줄만 수정
+# (선택) 콩잎 아님 표시: ImageNet 모델 저장 + 거리 분포 만들기 (06 B-10)
+python -c "from transformers import AutoImageProcessor, ResNetModel as M; M.from_pretrained('microsoft/resnet-18').save_pretrained('artifacts/resnet18_imagenet'); AutoImageProcessor.from_pretrained('microsoft/resnet-18').save_pretrained('artifacts/resnet18_imagenet')"
+python -m analysis.ood_check --model artifacts/beans_resnet18_aug_e15 --feature-model microsoft/resnet-18 --tag IMGNETfeat
+printf '\nLEAF_FEATURE_MODEL=artifacts/resnet18_imagenet\nLEAF_STATS_PATH=artifacts/beans_resnet18_aug_e15/ood_stats_IMGNETfeat.npz\n' >> .env
 
 # 3) 서버 (redis · postgres · web · worker)
 docker compose up -d --build
@@ -52,7 +57,8 @@ fastapi_resnet18/
 │   ├── router_sync.py     # 동기 API
 │   ├── router_async.py    # 비동기 접수·조회 API
 │   ├── router_web.py      # HTML 화면
-│   └── router_jobs.py     # 작업 목록 API·화면 (추가)
+│   ├── router_jobs.py     # 작업 목록 API·화면 (추가)
+│   └── leaf_check.py      # 콩잎 아님 거리 검사 (추가)
 ├── training/
 │   ├── finetune.py        # Fine-tuning (제공 코드 그대로)
 │   ├── finetune_aug.py    # finetune.py를 불러 train에만 증강 (추가)
@@ -64,7 +70,10 @@ fastapi_resnet18/
 │   ├── ensemble_eval.py   #   앙상블·TTA 비교
 │   ├── measure_timings.py #   처리 시간 측정
 │   ├── shift_eval.py      #   거리·구도·화질 바꾼 Val로 E4·E6 비교
-│   └── predict_folder.py  #   외부 사진 폴더 E4·E6 비교
+│   ├── predict_folder.py  #   외부 사진 폴더 E4·E6 비교
+│   ├── ood_check.py       #   콩잎 특징 정규분포 거리·기준값 (콩잎 아님 표시용)
+│   ├── plot_predictions.py #  판정 결과 사진 격자
+│   └── gradcam.py         #   Grad-CAM 판정 근거 히트맵
 ├── templates/             # base · sync · async · jobs(추가).html
 ├── static/                # style.css · result.js/css(추가)
 ├── tests/test_api.py      # 모의 통합 테스트
@@ -82,7 +91,8 @@ fastapi_resnet18/
 ├── artifacts/             # 학습 모델 (업로드 안 함)
 │   ├── beans_resnet18/          # 기준선 Head-only
 │   ├── beans_resnet18_full_e8/  # E4 Full (이전 서빙)
-│   └── beans_resnet18_aug_e15/  # E6 Full + 증강 (서빙)
+│   ├── beans_resnet18_aug_e15/  # E6 Full + 증강 (서빙) + ood_stats_IMGNETfeat.npz
+│   └── resnet18_imagenet/       # 콩잎 아님 검사용 ImageNet 특징 모델
 └── media/jobs/            # 비동기 업로드 원본 (업로드 안 함)
 ```
 
