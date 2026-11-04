@@ -13,6 +13,8 @@
 | API-04 | GET | `/api/async/jobs/{job_id}/` | 정수 `job_id` | 200 | `status`, `top1`, `all`, `inference_ms`, `cache_hit`, `error_message` | 404 |
 | WEB-01 | GET | `/vision/sync/` | 없음 | 200 | HTML | — |
 | WEB-02 | GET | `/vision/async/` | 없음 | 200 | HTML | — |
+| API-05 (추가) | GET | `/api/async/jobs/?limit=20` | `limit` 1~100 | 200 | 최근 작업 배열 (`job_id`, `status`, `top1_label`, `top1_score`, `cache_hit`, `inference_ms`, `created_at`) | 422 (limit 범위 밖) |
+| WEB-03 (추가) | GET | `/vision/jobs/` | 없음 | 200 | HTML 작업 목록 (3초 자동 갱신) | — |
 | WEB-00 | GET | `/` | 없음 | 307 | `/vision/sync/`로 이동 | — |
 
 ## 2. API-02 동기 분류
@@ -79,3 +81,10 @@
 
 - `202`는 **접수**, 상태 조회 `200`의 `done`이 **완료**
 - 응답 필드 `all`은 DB 컬럼 `all_scores`와 이름이 다름 (코드 그대로 유지)
+
+## 6. 제공 코드 외 추가 기능
+
+- `ai/router_jobs.py` (새 파일): 작업 목록 API-05 + 화면 WEB-03. 기존 `router_async.py`는 수정하지 않음
+  - 추가 이유: 제공 API-04는 job **1개**만 번호로 조회 → 쌓인 작업 전체를 브라우저에서 확인할 방법이 없었음 (psql·DBeaver만 가능)
+  - 실제 확인: `GET /api/async/jobs/?limit=3` → 200, job 16·15·14 반환
+- `static/result.js`·`result.css`: 응답 JSON을 카드(한글 병명·확신도 막대·캐시 배지)로 표시, 확신도 0.9 미만은 "사람 확인 필요" (06 보고서 R1 규칙). **API 응답 형식은 변경 없음**
