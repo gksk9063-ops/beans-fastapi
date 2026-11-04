@@ -1,0 +1,15 @@
+file,E4_label,E4_score,E6_label,E6_score,E46_label,E46_score
+248405_247608_2519.jpg,angular_leaf_spot,0.8501,healthy,0.9857,healthy,0.5649
+images.jpg,angular_leaf_spot,0.815,healthy,0.9492,healthy,0.5553
+ㄴㅇㄹ.jpg,healthy,0.7119,healthy,0.9988,healthy,0.8553
+갈색점추가.jpg,angular_leaf_spot,0.6869,healthy,0.4525,angular_leaf_spot,0.547
+고양이.jpg,bean_rust,0.8284,bean_rust,0.8883,bean_rust,0.8584
+곤충제거.jpg,bean_rust,0.996,bean_rust,0.9644,bean_rust,0.9802
+깻잎.jpg,angular_leaf_spot,0.8146,healthy,0.5862,angular_leaf_spot,0.5991
+녹병 콩잎.jpg,bean_rust,0.8213,bean_rust,0.3398,bean_rust,0.5806
+반점병 콩잎.jpg,angular_leaf_spot,0.9293,angular_leaf_spot,0.8223,angular_leaf_spot,0.8758
+방울토마토.jpg,bean_rust,0.6888,healthy,0.4894,bean_rust,0.4858
+시금치.jpg,healthy,0.5491,healthy,0.9932,healthy,0.7712
+정상콩잎.jpg,healthy,0.9923,healthy,0.9995,healthy,0.9959
+정원수.jpg,healthy,0.8748,healthy,0.9872,healthy,0.931
+콩잎과 곤충.jpg,bean_rust,0.9949,bean_rust,0.9052,bean_rust,0.9501

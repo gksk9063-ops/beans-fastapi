@@ -1,0 +1,15 @@
+file,distance,ratio_to_threshold,ood,pred,score
+248405_247608_2519.jpg,29.79,1.14,1,healthy,0.9857
+images.jpg,24.34,0.93,0,healthy,0.9492
+ㄴㅇㄹ.jpg,26.31,1.0,1,healthy,0.9988
+갈색점추가.jpg,24.08,0.92,0,healthy,0.4529
+고양이.jpg,35.95,1.37,1,bean_rust,0.8883
+곤충제거.jpg,24.66,0.94,0,bean_rust,0.9644
+깻잎.jpg,29.33,1.12,1,healthy,0.5859
+녹병 콩잎.jpg,21.41,0.82,0,bean_rust,0.3396
+반점병 콩잎.jpg,24.39,0.93,0,angular_leaf_spot,0.8223
+방울토마토.jpg,26.12,1.0,0,healthy,0.4894
+시금치.jpg,30.57,1.17,1,healthy,0.9932
+정상콩잎.jpg,32.71,1.25,1,healthy,0.9995
+정원수.jpg,26.84,1.02,1,healthy,0.9872
+콩잎과 곤충.jpg,22.23,0.85,0,bean_rust,0.9052

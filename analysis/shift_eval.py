@@ -2,6 +2,8 @@
 
 예:
   python -m analysis.shift_eval --models E4=artifacts/beans_resnet18_full_e8 E6=artifacts/beans_resnet18_aug_e15 --preview
+  # 앙상블 (E4+E6 확률 평균):
+  python -m analysis.shift_eval --models E4=artifacts/beans_resnet18_full_e8 E6=artifacts/beans_resnet18_aug_e15 E46=artifacts/beans_resnet18_full_e8+artifacts/beans_resnet18_aug_e15 --out reports/data/shift_eval_ens.csv
 결과: reports/data/shift_eval.csv (+ --preview면 reports/figures/shift_preview/ 에 조건별 예시 사진)
 """
 import argparse
@@ -17,16 +19,18 @@ from training.augment import SHIFT_CONDITIONS
 
 
 def evaluate(model_path, records, condition, device, batch_size, threshold):
-    processor = AutoImageProcessor.from_pretrained(model_path)
-    model = AutoModelForImageClassification.from_pretrained(model_path).to(device).eval()
-    classes = [model.config.id2label[i] for i in range(len(model.config.id2label))]
+    # "경로1+경로2"면 두 모델의 softmax 확률을 평균 (앙상블). 클래스 순서는 학습 때 같은 sorted 순서
+    paths = model_path.split("+")
+    processor = AutoImageProcessor.from_pretrained(paths[0])
+    models = [AutoModelForImageClassification.from_pretrained(p).to(device).eval() for p in paths]
+    classes = [models[0].config.id2label[i] for i in range(len(models[0].config.id2label))]
     correct, scores, held = 0, [], 0
     with torch.no_grad():
         for start in range(0, len(records), batch_size):
             batch = records[start:start + batch_size]
             images = [condition(Image.open(p).convert("RGB")) for p, _ in batch]
             pixels = processor(images=images, return_tensors="pt")["pixel_values"].to(device)
-            probs = torch.softmax(model(pixel_values=pixels).logits, dim=-1).cpu()
+            probs = torch.stack([torch.softmax(m(pixel_values=pixels).logits, dim=-1) for m in models]).mean(0).cpu()
             for (_, true), prob in zip(batch, probs):
                 idx = int(prob.argmax())
                 correct += int(classes[idx] == true)
