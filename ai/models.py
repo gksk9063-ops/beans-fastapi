@@ -18,5 +18,7 @@ class ImageJob(Base):
     inference_ms: Mapped[float | None] = mapped_column(Float, nullable=True)
     cache_hit: Mapped[bool | None] = mapped_column(nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    leaf_distance: Mapped[float | None] = mapped_column(Float, nullable=True)   # 콩잎 분포까지 거리 (06 B-10)
+    maybe_not_bean: Mapped[bool | None] = mapped_column(nullable=True)          # 기준값보다 멀면 True
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)

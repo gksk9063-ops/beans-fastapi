@@ -2,8 +2,9 @@ import hashlib
 import io
 import time
 from PIL import Image, ImageOps, UnidentifiedImageError
-from .config import MAX_IMAGE_PIXELS, MAX_UPLOAD_BYTES, MODEL_PATH
+from .config import LEAF_STATS_PATH, MAX_IMAGE_PIXELS, MAX_UPLOAD_BYTES, MODEL_PATH
 from .hf_model import get_classifier
+from .leaf_check import check_leaf
 
 class InvalidImage(ValueError):
     pass
@@ -38,16 +39,19 @@ def classify_image_bytes(image_bytes: bytes) -> dict:
         raise RuntimeError("이미지 분류 모델이 결과를 반환하지 않았습니다.")
     items = [{"label": str(x["label"]), "score": float(x["score"])} for x in raw]
     items.sort(key=lambda x: x["score"], reverse=True)
+    inference_ms = round((time.perf_counter() - started) * 1000, 2)
     return {
         "model_id": MODEL_PATH,
         "top1": items[0],
         "all": items,
-        "inference_ms": round((time.perf_counter() - started) * 1000, 2),
+        "inference_ms": inference_ms,
         "cache_hit": False,
+        "leaf_check": check_leaf(image),   # 콩잎 아님 표시 (설정 없으면 None)
     }
 
 
 def cache_key(image_bytes: bytes) -> str:
     digest = hashlib.sha256(image_bytes).hexdigest()
-    model = hashlib.sha256(MODEL_PATH.encode("utf-8")).hexdigest()[:16]
+    # 모델 경로 + 콩잎 검사 설정이 바뀌면 캐시 키도 바뀐다 (이전 결과와 섞이지 않게)
+    model = hashlib.sha256(f"{MODEL_PATH}|{LEAF_STATS_PATH}".encode("utf-8")).hexdigest()[:16]
     return f"vision:classify:{model}:{digest}"

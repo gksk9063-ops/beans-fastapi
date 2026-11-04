@@ -25,6 +25,9 @@ def classify_job(job_id: int):
             job.all_scores = result["all"]
             job.inference_ms = result["inference_ms"]
             job.cache_hit = result["cache_hit"]
+            leaf = result.get("leaf_check") or {}
+            job.leaf_distance = leaf.get("distance")
+            job.maybe_not_bean = leaf.get("maybe_not_bean")
             job.status = "done"
             job.error_message = None
             db.commit()

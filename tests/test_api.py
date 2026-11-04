@@ -111,3 +111,32 @@ def test_worker_failure_records_failed(monkeypatch, tmp_path):
         state = client.get(f"/api/async/jobs/{job_id}/").json()
         assert state["status"] == "failed"
         assert "fake model crashed" in state["error_message"]
+
+def test_leaf_distance_math():
+    """콩잎 거리 계산 (06 B-10): 단위 공분산이면 Mahalanobis 거리 = 유클리드 거리, 분포가 여럿이면 가장 가까운 값"""
+    import numpy as np
+    from ai.leaf_check import min_distance
+    params = [(np.zeros(2), np.eye(2)), (np.array([10.0, 0.0]), np.eye(2))]
+    assert abs(min_distance(np.array([3.0, 4.0]), params) - 5.0) < 1e-6
+    assert abs(min_distance(np.array([9.0, 0.0]), params) - 1.0) < 1e-6
+
+
+def test_not_bean_flag_saved_for_async(monkeypatch, tmp_path):
+    """콩잎 검사 결과가 동기 응답에 붙고, 비동기 작업에서는 DB에 저장되어 조회된다 (모의 검사기 사용)"""
+    monkeypatch.setattr(services, "get_classifier", lambda: fake_classifier)
+    monkeypatch.setattr(services, "check_leaf", lambda image: {"distance": 62.3, "threshold": 37.4, "maybe_not_bean": True, "ms": 1.0})
+    monkeypatch.setattr(router_async, "MEDIA_DIR", tmp_path / "jobs")
+    monkeypatch.setattr(tasks, "MEDIA_DIR", tmp_path / "jobs")
+    import ai.router_sync as router_sync
+    monkeypatch.setattr(router_sync, "classify_with_cache", services.classify_image_bytes)
+    monkeypatch.setattr(tasks, "classify_with_cache", services.classify_image_bytes)
+    monkeypatch.setattr(router_async.classify_job, "delay", lambda job_id: None)
+    with TestClient(app) as client:
+        sync = client.post("/api/sync/classify/", files={"image": ("a.png", image_bytes(), "image/png")}).json()
+        assert sync["leaf_check"]["maybe_not_bean"] is True
+        job_id = client.post("/api/async/classify/", files={"image": ("a.png", image_bytes(), "image/png")}).json()["job_id"]
+        tasks.classify_job(job_id)
+        done = client.get(f"/api/async/jobs/{job_id}/").json()
+        assert done["leaf_check"] == {"distance": 62.3, "maybe_not_bean": True}
+        listed = client.get("/api/async/jobs/?limit=1").json()[0]
+        assert listed["maybe_not_bean"] is True

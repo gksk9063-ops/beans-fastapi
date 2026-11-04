@@ -15,3 +15,6 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://127.0.0.1:63
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 MAX_IMAGE_PIXELS = 12_000_000
 MEDIA_DIR = BASE_DIR / "media" / "jobs"
+# 콩잎이 아닌 사진 표시 (06 B-10). LEAF_STATS_PATH가 비어 있으면 검사 생략
+LEAF_FEATURE_MODEL = os.getenv("LEAF_FEATURE_MODEL", "microsoft/resnet-18")
+LEAF_STATS_PATH = os.getenv("LEAF_STATS_PATH", "")

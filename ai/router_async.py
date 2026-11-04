@@ -52,4 +52,6 @@ def get_job(job_id: int):
             "inference_ms": job.inference_ms,
             "cache_hit": job.cache_hit,
             "error_message": job.error_message if job.status == "failed" else None,
+            "leaf_check": ({"distance": job.leaf_distance, "maybe_not_bean": job.maybe_not_bean}
+                           if job.status == "done" and job.leaf_distance is not None else None),
         }

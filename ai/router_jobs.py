@@ -25,6 +25,7 @@ def list_jobs(limit: int = Query(20, ge=1, le=100)):
                 "inference_ms": j.inference_ms,
                 "cache_hit": j.cache_hit,
                 "error_message": j.error_message,
+                "maybe_not_bean": j.maybe_not_bean,
                 "created_at": j.created_at.isoformat() if j.created_at else None,
             }
             for j in jobs
