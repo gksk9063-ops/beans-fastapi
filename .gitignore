@@ -6,3 +6,7 @@ beans_source/
 dataset/
 artifacts/
 media/
+
+__pycache__/
+*.pyc
+.vscode/
