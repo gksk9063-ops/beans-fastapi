@@ -96,6 +96,19 @@ python -m training.finetune --data dataset --output artifacts/beans_resnet18_ful
 - E4 Test Accuracy: **0.9688 (124/128)** · Val 0.9925 대비 2.4%p 낮음
 - 오답 4장 모두 bean_rust (3장 → angular_leaf_spot, 1장 → healthy)
 
+### 3-5. 과적합 · 과소적합 점검
+
+best 모델로 Train을 다시 예측해 Val·Test와 비교 (`analysis/predict_split.py --split train`)
+
+| 모델 | Train | Val | Test | 판단 |
+|---|---:|---:|---:|---|
+| E0 Head-only | 0.7737 (800/1034) | 0.7669 (102/133) | — | 둘 다 낮고 비슷함 → **과소적합** |
+| E4 Full | 1.0000 (1034/1034) | 0.9925 (132/133) | 0.9688 (124/128) | 차이가 작음 → **과적합 징후 작음** |
+
+- E0: 고정된 backbone 특징만으로는 Train도 다 맞히지 못함. 오답 확신도 대부분 0.35~0.6
+- E4: Train loss 0.44 → 0.026으로 계속 내려가는 동안 Val 정확도는 떨어지지 않음 (ep6~8 0.9925 유지)
+- 한계: 제공 학습 코드가 Val loss와 epoch별 Train 정확도를 기록하지 않고 best epoch 모델만 저장 → epoch별 학습 곡선 비교는 하지 못함
+
 ## 4. 생성 파일 확인
 
 - [x] config.json
