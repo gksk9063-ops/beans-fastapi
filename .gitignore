@@ -11,3 +11,4 @@ media/jobs/*
 beans_source/
 *.pyc
 .vscode/
+external_photos/
