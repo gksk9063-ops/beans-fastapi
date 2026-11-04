@@ -1,12 +1,12 @@
-
-# 교과9 평가: 비밀값·데이터·모델 제외
-.env
 .venv/
-beans_source/
-dataset/
-artifacts/
-media/
-
 __pycache__/
+.pytest_cache/
+.env
+dataset/
+artifacts/*
+!artifacts/.gitkeep
+media/jobs/*
+!media/jobs/.gitkeep
+*.db.vscode/
+beans_source/
 *.pyc
-.vscode/
