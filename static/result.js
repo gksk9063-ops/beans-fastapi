@@ -28,7 +28,7 @@ function renderResult(box, data, httpStatus) {
         </div>
         <div class="top-score">${pct(top.score)}</div>
       </div>
-      ${review ? `<div class="notice">확신도 ${pct(top.score)} &lt; 90% → 사람 확인 필요</div>` : ''}
+      ${review ? `<div class="notice">확신도 ${pct(top.score)} &lt; 90% → 사람 확인 필요 (병명이 불확실하거나 콩잎 사진이 아닐 수 있어요)</div>` : ''}
       <div class="bars">${bars}</div>
       <div class="badges">
         <span class="badge ${data.cache_hit ? 'hit' : 'miss'}">캐시 ${data.cache_hit ? 'HIT' : 'MISS'}</span>
