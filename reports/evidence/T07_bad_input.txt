@@ -1,0 +1,7 @@
+HTTP/1.1 400 Bad Request
+date: Wed, 04 Nov 2026 02:51:13 GMT
+server: uvicorn
+content-length: 56
+content-type: application/json
+
+{"detail":"올바른 이미지 파일이 아닙니다."}
